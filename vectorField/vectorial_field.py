@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
 import math
+
 #settings
 # s0 -> rot graph
 # s1 -> vectorial field
@@ -30,9 +31,6 @@ cx, cy = np.meshgrid(np.arange(cMinX, cMaxX, deltaC), np.arange(cMinY, cMaxY, de
 cZ = curl(cx,cy)
 
 # style
-cmap = plt.get_cmap('autumn')
-levels = MaxNLocator(nbins=40).tick_values(cZ.min(), cZ.max())
-norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
 
 
 # 2-D Vectorial field
@@ -41,7 +39,7 @@ vMinX, vMaxX = -5.0, 5.0
 vMinY, vMaxY = -5.0, 5.0
 vx, vy = np.meshgrid(np.arange(vMinX, vMaxX, deltaV), np.arange(vMinY, vMaxY, deltaV))
 vfx, vfy = f(vx, vy) 
-
+vmod = np.sqrt(vfx**2 + vfy**2)
 
 # StreamLine
 strm = ax3.streamplot(vx, vy, vfx, vfy, color=vfx**2+vfy**2, linewidth=2, cmap='autumn')
@@ -60,10 +58,15 @@ dz = div(dx,dy)
 ax4.set_title('Divergenza')
 ax4.pcolormesh(dx,dy,dz)
 
+
+levels = []
+for i in range(-30, 30,3):
+    levels.append(i)
+
 ax1.set_title('Rotore')
-ax1.pcolormesh(cx,cy,cZ, cmap = "autumn", norm = norm)
+ax1.contourf(cx,cy,cZ, levels =levels , cmap = "autumn")
 
 ax2.set_title('Campo vettoriale')
-ax2.quiver(vx,vy,vfx,vfy)
+ax2.quiver(vx,vy,vfx,vfy, vmod, cmap="autumn")
 
 plt.show()
