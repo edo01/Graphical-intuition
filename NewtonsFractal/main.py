@@ -7,14 +7,15 @@ Author : Luca Domeniconi
 
 import math
 import cmath
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 real_zeros = [complex(4, -4),
               complex(5, 5),
               complex(-1, -3)]
-color_map = {real_zeros[0]: 'Aqua',
-             real_zeros[1]: 'Crimson',
-             real_zeros[2]: 'Blue'}
+
+color_map = {real_zeros[0]: '#082032',
+             real_zeros[1]: '#2C394B',
+             real_zeros[2]: '#FF4C29'}
 
 
 def function(x):
@@ -45,13 +46,13 @@ def get_closest_zero(x, iterations):
 
 
 # Plot window
-RE_START = -10
-RE_END = 10
-IM_START = -10
-IM_END = 10
-WIDTH = 750
-HEIGHT = 750
-ITERATIONS = 10
+RE_START = -8*2
+RE_END = 8*2
+IM_START = -4.5*2
+IM_END = 4.5*2
+WIDTH = 2560
+HEIGHT = 1440
+ITERATIONS = 8
 
 im = Image.new('RGB', (WIDTH, HEIGHT), (0, 0, 0))
 draw = ImageDraw.Draw(im)
@@ -67,8 +68,8 @@ for x in range(0, WIDTH):
 # Draw black circles for the real zeros
 for z in real_zeros:
     x = WIDTH * (z.real - RE_START) / (RE_END - RE_START)
-    y = HEIGHT * (z.imag - IM_START) / (IM_END - IM_START)
+    y = HEIGHT * (-z.imag - IM_START) / (IM_END - IM_START)
     radius = 5
     draw.ellipse([x - radius, y - radius, x + radius, y + radius], fill='black')
-
-im.save('output.png', 'PNG')
+im = im.resize((WIDTH // 2, HEIGHT // 2), resample=Image.ANTIALIAS)
+im.save('output.png', 'PNG', quality=100)
