@@ -1,3 +1,10 @@
+"""
+Program to animate the Newton's Fractal.
+To animate set ANIMATE to true and set the FRAME.
+To get a single image set ANIMATE to False and the FRAME to 1.
+To get different image colors change the colormap of the animation.
+"""
+
 import cmath
 import math
 
@@ -5,10 +12,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+# Zeros of the function
 zeros = [complex(-1, 0),
          complex(0, 1),
          complex(-1, -1)]
 
+# Associate each zero with a value
 zeros_color_values = {zeros[0]: 1,
                       zeros[1]: 0,
                       zeros[2]: 2}
@@ -36,17 +45,18 @@ def get_closest_zero(x, iterations):
     # print(res)
     min_dist = math.inf
     for zero in zeros:
-        if cmath.polar(zero-res)[0] < min_dist:
-            min_dist = cmath.polar(zero-res)[0]
+        if cmath.polar(zero - res)[0] < min_dist:
+            min_dist = cmath.polar(zero - res)[0]
             closest_zero = zero
-
     return closest_zero
 
 
 x_start, y_start = -1.5, -0.75  # an interesting region starts here
 width, height = 1, 1  # for 3 units up and right
-density_per_unit = 500  # how many pixels per unit
+density_per_unit = 1000  # how many pixels per unit
 ITERATIONS = 10
+ANIMATE = True
+FRAME = 10
 
 # real and imaginary axis
 re = np.linspace(x_start, x_start + width, int(width * density_per_unit))
@@ -57,31 +67,33 @@ ax = plt.axes()  # create an axes object
 
 
 def animate(it):
-    # print("animate")
     ax.clear()  # clear axes object
-    # print("oh no")
     ax.set_xticks([])  # clear x-axis ticks
     ax.set_yticks([])  # clear y-axis ticks
-    # print("bella")
-    X = np.empty((len(re), len(im)))  # re-initialize the array-like image
-    # threshold = round(1.15 ** (i + 1))  # calculate the current threshold
-    # print(it)
-    # iterations for the current threshold
+    result = np.empty((len(re), len(im)))  # re-initialize the array-like image
+
+    # Calculating the function for each point in complex plane
     for i in range(len(re)):
         for j in range(len(im)):
-            # print("c = "+str(complex(re[i], im[i])))
-            # print(complex(re[i], im[i]))
-            # X[i, j] = mandelbrot(re[i], im[j], threshold)
-            # print(get_closest_zero(complex(re[i], im[i]), it))
-            # X[i, j] = zeros_color_values.get(get_closest_zero(complex(re[i], im[i]), ITERATIONS))
-            X[i, j] = zeros_color_values.get(get_closest_zero(complex(re[i], im[j]), ITERATIONS))
-    print("Printing animation at " + str(it))
-    # print(X)
-    # associate colors to the iterations with an iterpolation
-    img = ax.imshow(X.T, interpolation="bicubic", cmap='inferno')
+            if ANIMATE:
+                result[i, j] = zeros_color_values.get(get_closest_zero(complex(re[i], im[j]), it))
+            else:
+                result[i, j] = zeros_color_values.get(get_closest_zero(complex(re[i], im[j]), ITERATIONS))
+
+    print("Calculating frame " + str(it))
+    # associate colors to the iterations with an interpolation, trasponing the result matrix
+    """
+    Change the interpolation to get different image result, and the
+    cmap to get different color scheme
+    """
+    img = ax.imshow(result.T, interpolation="bicubic", cmap='inferno')
     return [img]
 
 
-anim = animation.FuncAnimation(fig, animate, frames=1, interval=500, blit=True)
+# Create the animation
+anim = animation.FuncAnimation(fig, animate, frames=FRAME, interval=500, blit=True)
+
+# Shows the image
 plt.show()
+# Saves the image as .gif
 anim.save('mandelbrot.gif', writer='imagemagick')
